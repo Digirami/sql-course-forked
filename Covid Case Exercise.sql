@@ -13,6 +13,8 @@ SELECT
 FROM CovidCase cc
 ORDER BY cc.DateRecorded DESC;
 
+SELECT count(*) from CovidCase
+
 /*
 Calculate the cumulative number of cases by each country (on or before March 15th 2020)
 Create a resultset with four columns: Country, DateRecorded, DailyCases and CumulativeCases
@@ -22,8 +24,8 @@ SELECT
 	cc.Country
 	, cc.DateRecorded
 	, cc.DailyCases
-	, 'your answer' AS CumulativeCases
-FROM
+	, SUM (cc.DailyCases) OVER (PARTITION BY cc.Country ORDER BY cc.DateRecorded) AS CumulativeCases
+FROM	
 	CovidCase cc
 where cc.DateRecorded <= '2020-03-15' -- keep # rows returned manageable to avoid scrolling much
 ORDER BY
@@ -48,7 +50,7 @@ GROUP BY
 SELECT
 	uk.DateRecorded
 	, uk.DailyCases
-	, 'your answer' CumulativeCases
+	, SUM(uk.DailyCases) OVER (ORDER BY DateRecorded) AS CumulativeCases
 FROM
 	uk
 ORDER BY
@@ -63,7 +65,7 @@ WITH
     uk (DateRecorded, DailyCases)
     AS
     (
-SELECT
+SELECT 
 	cc.DateRecorded
 	, SUM(cc.DailyCases)
 FROM
@@ -71,12 +73,14 @@ FROM
 GROUP BY
 	cc.DateRecorded
     )
-SELECT 
+SELECT TOP(3)
 	uk.DateRecorded
 	, uk.DailyCases
-	, 'your answer' AS Ranking
+	, RANK() OVER (ORDER BY DailyCases DESC) AS Ranking
 FROM
-	uk;
+	uk
+ORDER BY Ranking
+
 
 /*
 Find the three days with the highest number of cases in each country 
@@ -84,21 +88,31 @@ Create a resultset with
 * four columns: Country, DateRecorded, DailyCases and Ranking 
 * 12 rows (4 rows for each country with Ranking of 1,2,and 3
 */
+;
+
 WITH
-    cte
+    cte (Country, DateRecorded, DailyCases)
     AS
     (
 SELECT
-	cc.Country
-	, cc.DateRecorded
-	, cc.DailyCases
+    cc.Country
+    , cc.DateRecorded
+    , cc.DailyCases
 FROM
-	CovidCase cc
+    CovidCase cc
     )
-SELECT
-	*
+,cte2 as (SELECT
+     cte.Country
+    ,cte.DateRecorded
+    , cte.DailyCases
+    , RANK() over ( partition by cte.Country order by cte.DailyCases DESC) AS Ranking
 FROM
-	cte
+    cte
+)
+select * from cte2
+where cte2.Ranking <=3
+
+
 
 /*
 Advanced Section
@@ -152,3 +166,7 @@ FROM
 ORDER BY
 	cc.Country
 	, cc.DateRecorded;
+
+
+
+SELECT * FROM Tally
