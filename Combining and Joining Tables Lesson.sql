@@ -94,6 +94,9 @@ A semi-join returns the rows from the first tables that have matching values in 
 It only returns the columns from the first table
 There is no SQL SEMI JOIN operator, use IN() or EXISTS() to accomplish a semi-join
 */
+
+-- simple query (can run sub-query independently)
+
 SELECT
 	g.CountryCode
 	, g.CapitalCity
@@ -102,6 +105,8 @@ FROM
 WHERE
 	g.CountryCode IN
       (	SELECT	fx.CountryCode 	FROM CurrencyFX fx );
+
+-- corrolated query (cannot run sub-query independently)
 
 SELECT
 	g.CountryCode
@@ -135,6 +140,7 @@ FROM
 WHERE
 	NOT EXISTS
 ( SELECT * FROM CurrencyFX fx WHERE fx.CountryCode = g.CountryCode);
+
 
 -- UNION appends (or stacks) two queries removing any duplicates
 SELECT
@@ -183,17 +189,6 @@ FROM
 	Geography g
 EXCEPT 
 SELECT CountryCode FROM	CurrencyFX fx;
-
-
-
-
-
-
- 
-
-
-
-
 
 
 /*

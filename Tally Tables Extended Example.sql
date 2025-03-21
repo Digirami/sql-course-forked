@@ -40,6 +40,8 @@ SELECT * FROM #DrugLicensePeriod;
 -- useful numbers Tally table - Google "SQL Tally Table" for more
 
 
+
+
 -- Create a temp table of years from the Tally table
 DROP TABLE IF EXISTS #Year;
 
@@ -47,7 +49,7 @@ SELECT
 	2000 + n  AS Year
 INTO #Year
 	from Tally
-where n between 21 and 23
+where n between 21 and 24
 
 SELECT * FROM #Year
 
